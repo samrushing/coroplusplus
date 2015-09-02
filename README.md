@@ -35,8 +35,8 @@ How does this differ from other threading/coroutine libraries?
 The main difference is that this system gets by with just *two* stacks:
 one for the main thread (the scheduler), and the other for all the other
 threads.  Other systems often use a separate stack for every thread, wasting
-large amounts of memory.  Shrapnel goes a step further and provides a way
-to compress the stacks of idle threads.
+large amounts of memory.  (Shrapnel goes a step further and provides a way
+to compress the stacks of idle threads).
 
 How?
 ----
@@ -88,3 +88,5 @@ server bench: 1 772274|0 072406|0 088307|maxrss:4591616 ixrss:0 idrss:0 isrss:0 
 client bench: 0 164574|0 015882|0 112953|maxrss:1232896 ixrss:0 idrss:0 isrss:0 minflt:155 majflt:0 nswap:0 inblock:0 oublock:0 msgsnd:10101 msgrcv:10001 nsignals:0 nvcsw:0 nivcsw:5083
 read_block: 10101  write_block: 100
 ```
+
+This does 100 transactions of 100 bytes each on 100 connections.
