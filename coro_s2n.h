@@ -102,7 +102,7 @@ public:
   }
 
   bool
-  _wait_on_event (s2n_blocked_status & blocked)
+  _wait_on_event (s2n_blocked_status blocked)
   {
     switch (blocked) {
       case S2N_BLOCKED_ON_READ:
