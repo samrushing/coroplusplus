@@ -1,5 +1,33 @@
 // -*- Mode: C++ -*-
 
+#ifdef USE_EC
+const char key[]  = \
+  "-----BEGIN EC PARAMETERS-----\n"
+  "BggqhkjOPQMBBw==\n"
+  "-----END EC PARAMETERS-----\n"
+  "-----BEGIN EC PRIVATE KEY-----\n"
+  "MHcCAQEEIEjlUGmDtQ6knDdlAJSNkkBsrscdSAwCzwIIlf46CIgYoAoGCCqGSM49\n"
+  "AwEHoUQDQgAEmscdfOltpZJIAiDBfCXEIiG98Dhlqh6uUkj0+NkmE4WNrJpMDYD/\n"
+  "ZEcJ0pVEwjIZyAcb5Sl6tk4FuCkIfPmPRA==\n"
+  "-----END EC PRIVATE KEY-----\n";
+
+const char crt[] = \
+  "-----BEGIN CERTIFICATE-----\n"
+  "MIICCDCCAbCgAwIBAgIJAPMOQCT1kfmpMAkGByqGSM49BAEwOzEUMBIGA1UEAxML\n"
+  "ZXhhbXBsZS5jb20xFjAUBgNVBAoTDUV4YW1wbGUsIEluYy4xCzAJBgNVBAYTAlVT\n"
+  "MB4XDTE1MDcxMTIxMDczOFoXDTE1MDgxMDIxMDczOFowOzEUMBIGA1UEAxMLZXhh\n"
+  "bXBsZS5jb20xFjAUBgNVBAoTDUV4YW1wbGUsIEluYy4xCzAJBgNVBAYTAlVTMFkw\n"
+  "EwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEmscdfOltpZJIAiDBfCXEIiG98Dhlqh6u\n"
+  "Ukj0+NkmE4WNrJpMDYD/ZEcJ0pVEwjIZyAcb5Sl6tk4FuCkIfPmPRKOBnTCBmjAd\n"
+  "BgNVHQ4EFgQUQR8Rw6gWKfmS8aag5pfjsNHblqMwawYDVR0jBGQwYoAUQR8Rw6gW\n"
+  "KfmS8aag5pfjsNHblqOhP6Q9MDsxFDASBgNVBAMTC2V4YW1wbGUuY29tMRYwFAYD\n"
+  "VQQKEw1FeGFtcGxlLCBJbmMuMQswCQYDVQQGEwJVU4IJAPMOQCT1kfmpMAwGA1Ud\n"
+  "EwQFMAMBAf8wCQYHKoZIzj0EAQNHADBEAiBXAW8xR517l9RbtvMt27lGGR8dcAcP\n"
+  "Tr9bHXvHzaDwLQIgAqbJQAkEhPdNZPzuxbtdTSMM1jijO+l+2hwJMScCpBM=\n"
+  "-----END CERTIFICATE-----\n";
+
+#else
+
 const char key[] = \
   "-----BEGIN RSA PRIVATE KEY-----\n"
   "MIICXQIBAAKBgQDbXarRaFWNbH7zt7qNLoTV02lEv5FyF0cOFuLXp2uSTpvlfQje\n"
@@ -36,3 +64,4 @@ const char crt[] = \
 "14bcAwcAimx5zqYfMZho7tBUxpRd5vp6UVi1nR/9pIlZ7wE=\n"
   "-----END CERTIFICATE-----\n";
 
+#endif
