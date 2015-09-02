@@ -45,7 +45,6 @@ public:
 
   ~coro_s2n_cfg()
   {
-    std::cerr << "~coro_s2n_cfg" << std::endl;
     if (_cfg) {
       s2n_config_free (_cfg);
     }
@@ -80,35 +79,8 @@ public:
 
   ~coro_s2n()
   {
-    std::cerr << "~coro_s2n" << std::endl;
     if (_conn) {
       s2n_connection_free (_conn);
-    }
-  }
-
-  // we use the _negotiated flag in order to avoid doing
-  //   s2n_negotiate() inside the accept thread.
-  void
-  check_negotiate()
-  {
-    if (!_negotiated) {
-      s2n_blocked_status blocked = S2N_NOT_BLOCKED;
-      while (1) {
-	std::cerr << "calling s2n_negotiate()\n";
-	int r = s2n_negotiate (_conn, &blocked);
-	std::cerr << "s2n_negotiate() => r=" << r << " blocked=" << blocked << " errno=" << errno << "\n";
-	if (r < 0 && errno != EWOULDBLOCK) {
-	  std::cerr << "errno=" << errno << std::endl;
-	  throw S2N_Error ("s2n_negotiate");
-	} else if (blocked == S2N_BLOCKED_ON_READ) {
-	  wait_for_read();
-	} else if (blocked == S2N_BLOCKED_ON_WRITE) {
-	  wait_for_write();
-	} else {
-	  break;
-	}
-      }
-      _negotiated = true;
     }
   }
 
@@ -118,22 +90,63 @@ public:
     return new coro_s2n (_cfg, _accept (addr, length_ptr), S2N_SERVER);
   }
 
-  ssize_t
-  read (char * buffer, size_t length)
+  int
+  _check (const char * fun, int r)
   {
-    check_negotiate();
+    if (r < 0) {
+      if (errno == EWOULDBLOCK) {
+	return 0;
+      } else {
+	throw S2N_Error (fun);
+      }
+    } else {
+      return r;
+    }
+  }
+
+  bool
+  _wait_on_event (s2n_blocked_status & blocked)
+  {
+    switch (blocked) {
+      case S2N_BLOCKED_ON_READ:
+	wait_for_read();
+	return false;
+      case S2N_BLOCKED_ON_WRITE:
+	wait_for_write();
+	return false;
+      case S2N_NOT_BLOCKED:
+	return true;
+    }
+  }
+
+  // we use the _negotiated flag in order to avoid doing
+  //   s2n_negotiate() inside an accept thread.
+  void
+  _check_negotiate()
+  {
+    if (!_negotiated) {
+      s2n_blocked_status blocked = S2N_NOT_BLOCKED;
+      while (1) {
+	_check ("s2n_negotiate", s2n_negotiate (_conn, &blocked));
+	if (_wait_on_event (blocked)) {
+	  break;
+	}
+      }
+      _negotiated = true;
+    }
+  }
+
+
+  ssize_t
+  read (void * buffer, size_t length)
+  {
+    _check_negotiate();
     s2n_blocked_status blocked = S2N_NOT_BLOCKED;
     ssize_t nbytes = 0;
+    char * p = (char *) buffer;
     while (1) {
-      int r = s2n_recv (_conn, buffer + nbytes, length - nbytes, &blocked);
-      if (r < 0) {
-	throw S2N_Error ("s2n_recv");
-      }
-      if (blocked == S2N_BLOCKED_ON_READ) {
-	wait_for_read();
-      } else if (blocked == S2N_BLOCKED_ON_WRITE) {
-	wait_for_write();
-      } else {
+      nbytes += _check ("s2n_recv", s2n_recv (_conn, p + nbytes, length - nbytes, &blocked));
+      if (_wait_on_event (blocked)) {
 	break;
       }
     }
@@ -143,20 +156,13 @@ public:
   void
   write (const void * buffer, size_t length)
   {
-    check_negotiate();
+    _check_negotiate();
     ssize_t nbytes = 0;
     s2n_blocked_status blocked = S2N_NOT_BLOCKED;
     char * p = (char *) buffer;
     while (1) {
-      int r = s2n_send (_conn, p + nbytes, length - nbytes, &blocked);
-      if (r <= 0) {
-	throw S2N_Error ("s2n_send");
-      }
-      if (blocked == S2N_BLOCKED_ON_READ) {
-	wait_for_read();
-      } else if (blocked == S2N_BLOCKED_ON_WRITE) {
-	wait_for_write();
-      } else {
+      nbytes += _check ("s2n_send", s2n_send (_conn, p + nbytes, length - nbytes, &blocked));
+      if (_wait_on_event (blocked)) {
 	break;
       }
     }
@@ -168,15 +174,8 @@ public:
     // how is ignored
     s2n_blocked_status blocked = S2N_NOT_BLOCKED;
     while (1) {
-      int r = s2n_shutdown (_conn, &blocked);
-      if (r < 0) {
-	throw S2N_Error ("s2n_shutdown");
-      }
-      if (blocked == S2N_BLOCKED_ON_READ) {
-	wait_for_read();
-      } else if (blocked == S2N_BLOCKED_ON_WRITE) {
-	wait_for_write();
-      } else {
+      _check ("s2n_shutdown", s2n_shutdown (_conn, &blocked));
+      if (_wait_on_event (blocked)) {
 	break;
       }
     }
