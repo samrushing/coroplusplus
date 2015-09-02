@@ -24,10 +24,11 @@
 
 static bench the_bench;
 
-// using get()
 void
 echo_session (coro_socket * s)
 {
+  // this is used to get RAII on <s>
+  std::auto_ptr<coro_socket> owner(s);
   try {
     coro_buffer buf(s);
     std::string line;
@@ -38,14 +39,16 @@ echo_session (coro_socket * s)
         s->close();
 	break;
       } else if (line[0] == '!') {
-        if (line[1] == 'q') {
+        if (line[1] == 'q') {	// quit
+	  s->shutdown();
           s->close();
           break;
-        } else if (line[1] == 's') {
+        } else if (line[1] == 's') { // shutdown
+	  s->shutdown();
           s->close();
           coro::exit();
           break;
-        } else if (line[1] == 'b') {
+        } else if (line[1] == 'b') { // benchmark
           std::string diff;
           the_bench.diff().dump(diff);
           s->write (diff);
@@ -68,6 +71,7 @@ echo_server (int port)
 {
   try {
 #ifdef USE_S2N
+    s2n_init();
     coro_s2n_cfg * cfg = new coro_s2n_cfg (crt, key);
     coro_s2n * s = new coro_s2n (cfg);
 #elif USE_OPENSSL
