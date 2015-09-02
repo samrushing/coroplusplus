@@ -67,7 +67,6 @@ public:
     _negotiated (false)
   {
     _conn = s2n_connection_new (mode);
-    std::cerr << "_fd =" << _fd << std::endl;
     if (!_conn) {
       throw S2N_Error ("s2n_connection_new");
     } else if (s2n_connection_set_config (_conn, _cfg->get_cfg()) < 0) {
