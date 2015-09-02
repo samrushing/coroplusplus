@@ -1,7 +1,5 @@
 // -*- Mode: C++ -*-
 
-// NOTE: this is a work in progress.
-
 #ifndef _CORO_S2N_H
 #define _CORO_S2N_H
 
