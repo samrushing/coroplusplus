@@ -137,7 +137,7 @@ public:
 
   virtual
   ssize_t
-  read (char * buffer, size_t length)
+  read (void * buffer, size_t length)
   {
     while (1) {
       ssize_t n = ::read (_fd, buffer, length);
