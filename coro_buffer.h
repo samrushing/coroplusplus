@@ -9,6 +9,24 @@
 // XXX should we have an outgoing buffer as well?
 // XXX should we have char[PAGE] buffer as ivar?
 
+typedef std::list<std::string> string_list;
+
+// still no std template for this?
+void
+string_join (std::string & result, string_list & sl)
+{
+  // first pass, get length
+  ssize_t size = result.size();
+  for (string_list::iterator i = sl.begin(); i != sl.end(); ++i) {
+    size += i->size();
+  }
+  // second pass, copy
+  result.reserve (size);
+  for (string_list::iterator i = sl.begin(); i != sl.end(); ++i) {
+    result += *i;
+  }
+}
+
 class coro_buffer {
 
 protected:
@@ -18,26 +36,48 @@ protected:
 public:
   coro_buffer (coro_file * f) : _f(f) {}
 
-  // get data from <_f>, appending it to <s>, until we see <delim>
+  // get data from <_f>, appending pieces to it to <sl>, until we see <delim>
   // Returns: boolean - has the stream closed?
+  bool
+  get (string_list & sl, std::string delim)
+  {
+    ssize_t matched = 0;
+    while (1) {
+      if ((_buffer.size() == 0) && (_f->read (_buffer) == 0)) {
+	return true;
+      } else {
+	for (ssize_t i = 0; i < _buffer.size(); ++i) {
+	  if (_buffer[i] == delim[matched]) {
+	    matched += 1;
+	    if (matched == delim.size()) {
+	      sl.push_back (_buffer.substr (0, i + 1));
+	      _buffer = _buffer.substr (i + 1);
+	      return false;
+	    }
+	  } else {
+	    matched = 0;
+	  }
+	}
+	sl.push_back (_buffer);
+	_buffer.clear();
+      }
+    }
+  }
+
+  bool
+  get (std::string & s, std::string delim)
+  {
+    string_list sl;
+    s.clear();
+    bool closed = get (sl, delim);
+    string_join (s, sl);
+    return closed;
+  }
+
   bool
   get (std::string& s, const char * delim = "\r\n")
   {
-    std::string::size_type i = _buffer.find (delim);
-    if (i == std::string::npos) {
-      // not here, get another buffer
-      int n = _f->read (_buffer);
-      if (!n) {
-	return true;
-      } else {
-	return get (s, delim); // tail call
-      }
-    } else {
-      i += strlen(delim); // include the delimiter?
-      s = _buffer.substr (0, i);
-      _buffer = _buffer.substr (i);
-      return false;
-    }
+    return get (s, std::string(delim));
   }
 
   std::string
@@ -54,7 +94,7 @@ public:
     size_t bsize = _buffer.size();
     if (bsize > 0) {
       c (_buffer);
-      _buffer = "";
+      _buffer.clear();
     }
     return bsize;
   }
