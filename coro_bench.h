@@ -50,7 +50,7 @@ class bench {
     int n = snprintf (
       buffer,
       sizeof (buffer),
-      "%ld %06d|%ld %06d|%ld %06d|"
+      "%ld %06ld|%ld %06ld|%ld %06ld|"
       "maxrss:%ld "
       "ixrss:%ld "
       "idrss:%ld "
@@ -66,12 +66,12 @@ class bench {
       "nvcsw:%ld "
       "nivcsw:%ld"
       "\r\n",
-      _tv.tv_sec,
-      _tv.tv_usec,
-      _ru.ru_utime.tv_sec,
-      _ru.ru_utime.tv_usec,
-      _ru.ru_stime.tv_sec,
-      _ru.ru_stime.tv_usec,
+      (long)_tv.tv_sec,
+      (long)_tv.tv_usec,
+      (long)_ru.ru_utime.tv_sec,
+      (long)_ru.ru_utime.tv_usec,
+      (long)_ru.ru_stime.tv_sec,
+      (long)_ru.ru_stime.tv_usec,
       _ru.ru_maxrss,
       _ru.ru_ixrss,
       _ru.ru_idrss,
