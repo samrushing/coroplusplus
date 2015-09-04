@@ -7,8 +7,11 @@
 #include "coro_file.h"
 #include "coro_buffer.h"
 #include "coro_socket.h"
+#ifdef __linux__
+#include "event_poll.h"
+#else
 #include "event_kqueue.h"
-//#include "event_select.h"
+#endif
 
 #include <stdlib.h>
 
@@ -211,8 +214,11 @@ int
 main (int argc, char * argv[])
 {
   smtp_session::set_hostname();
+#ifdef __linux__
+  poller * p = new poll_poller (2500);
+#else
   poller * p = new kqueue_poller (2500, 2500);
-  //poller * p = new select_poller();
+#endif
   coro::set_poller (p);
   coro * server = new coro ((spawn_fun) smtp_server, (void *) 9025);
   server->schedule();

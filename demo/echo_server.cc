@@ -4,7 +4,9 @@
 #include "coro_bench.h"
 #include "coro_buffer.h"
 #include "coro_socket.h"
+#ifndef __linux__
 #include "event_kqueue.h"
+#endif
 #include "event_select.h"
 #include "event_poll.h"
 
@@ -132,7 +134,11 @@ int
 main (int argc, char * argv[])
 {
   int ch;
+#ifdef __linux__
+  int ksp = 2; // default to poll
+#else
   int ksp = 0; // default to kqueue
+#endif
 
   while ((ch = getopt (argc, argv, "ksp")) != -1) {
     switch (ch) {
@@ -154,10 +160,12 @@ main (int argc, char * argv[])
 
   poller * p = 0;
   switch (ksp) {
+#ifndef __linux__
   case 0:
     p = new kqueue_poller (2500, 2500);
     std::cerr << "using kqueue()\n";
     break;
+#endif
   case 1:
     p = new select_poller();
     std::cerr << "using select()\n";

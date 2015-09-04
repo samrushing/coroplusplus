@@ -10,7 +10,9 @@
 #include "coro_bench.h"
 #include "coro_buffer.h"
 #include "coro_socket.h"
+#ifndef __linux__
 #include "event_kqueue.h"
+#endif
 #include "event_select.h"
 #include "event_poll.h"
 
@@ -132,7 +134,11 @@ main (int argc, char * argv[])
   ntrans = atoi (argv[4]);
   packet_size = atoi (argv[5]);
 
+#ifdef __linux__
+  poller * p = new poll_poller (2500);
+#else
   poller * p = new kqueue_poller (2500, 2500);
+#endif
   coro::set_poller (p);
 
   struct sockaddr_in addr;
@@ -142,7 +148,6 @@ main (int argc, char * argv[])
 
   total_bytes = 0;
 
-  addr.sin_len = 0;
   addr.sin_family = AF_INET;
   addr.sin_port = htons (port);
 
