@@ -112,7 +112,11 @@ int __swap (machine_state * to_state, machine_state * from_state);
 void _wrap1 (coro * co);
 void * yield (void * arg);
 
-#ifdef __x86_64__
+// note 2015: this does not seem necessary any longer.
+// I'm guessing it's because swap.h used to be swap.c.
+
+#if 0
+//#ifdef __x86_64__
 void
 _wrap0 (coro * co)
 {
@@ -122,8 +126,7 @@ _wrap0 (coro * co)
   // llvm does the prologue differently...
   __asm__ ("movq 16(%%rbp), %[co]" : [co] "=r" (co));
 #else
-  // somehow this is no longer necessary.
-  //__asm__ ("movq 8(%%rbp), %[co]" : [co] "=r" (co));
+  __asm__ ("movq 8(%%rbp), %[co]" : [co] "=r" (co));
 #endif
   _wrap1 (co);
   yield (0);
