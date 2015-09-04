@@ -122,8 +122,8 @@ _wrap0 (coro * co)
   // llvm does the prologue differently...
   __asm__ ("movq 16(%%rbp), %[co]" : [co] "=r" (co));
 #else
-  __asm__ ("movq 8(%%rbp), %[co]" : [co] "=r" (co));
-  fprintf (stderr, "gcc!\n");
+  // somehow this is no longer necessary.
+  //__asm__ ("movq 8(%%rbp), %[co]" : [co] "=r" (co));
 #endif
   _wrap1 (co);
   yield (0);
