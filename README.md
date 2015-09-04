@@ -53,7 +53,7 @@ See ``swap.h`` for details.
 
 TLS Support
 -----------
-Interfaces for both (OpenSSL)[https://openssl.org] and (S2N)[https://github.com/awslabs/s2n] are included.
+Interfaces for both [OpenSSL](https://openssl.org) and [S2N](https://github.com/awslabs/s2n) are included.
 
 Demo
 ----
