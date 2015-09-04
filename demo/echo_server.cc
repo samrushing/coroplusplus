@@ -24,10 +24,13 @@
 
 static bench the_bench;
 
+// NOTE: this expects 'lines' of input delimited by CRLF.
+//  [so if you're using "openssl s_client", add the -crlf argument]
+
 void
 echo_session (coro_socket * s)
 {
-  // this is used to get RAII on <s>
+  // take ownership of <s>
   std::auto_ptr<coro_socket> owner(s);
   try {
     coro_buffer buf(s);
