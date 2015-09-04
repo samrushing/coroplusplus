@@ -41,12 +41,12 @@ public:
   bool
   get (string_list & sl, std::string delim)
   {
-    ssize_t matched = 0;
+    std::string::size_type matched = 0;
     while (1) {
       if ((_buffer.size() == 0) && (_f->read (_buffer) == 0)) {
 	return true;
       } else {
-	for (ssize_t i = 0; i < _buffer.size(); ++i) {
+	for (std::string::size_type i = 0; i < _buffer.size(); ++i) {
 	  if (_buffer[i] == delim[matched]) {
 	    matched += 1;
 	    if (matched == delim.size()) {
@@ -102,7 +102,7 @@ public:
   void
   read_exact (size_t nbytes, consumer &c)
   {
-    int bsize = _buffer.size();
+    std::string::size_type bsize = _buffer.size();
     if (bsize > nbytes) {
       c (_buffer.substr (0, nbytes));
       _buffer = _buffer.substr (nbytes);
@@ -119,7 +119,7 @@ public:
   void
   read_exact (size_t nbytes, std::string & s)
   {
-    int bsize = _buffer.size();
+    std::string::size_type bsize = _buffer.size();
     if (bsize > nbytes) {
       s += _buffer.substr (0, nbytes);
       _buffer = _buffer.substr (nbytes);
