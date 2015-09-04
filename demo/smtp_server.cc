@@ -67,6 +67,12 @@ public:
     _id = _counter++;
   }
 
+  ~smtp_session() {
+    delete _s;
+    delete _b;
+    std::cerr << "smtp session " << _id << " destroyed\n";
+  }
+
   static
   void set_hostname (void) {
     char buffer[1024];
@@ -95,7 +101,6 @@ public:
       split_first (command, line, delim);
 
       transform (command.begin(), command.end(), command.begin(), tolower);
-      //std::cerr << _id << ".command(" << command << ")\n";
 
       if (command == "quit") {
 	// std::cerr << "got quit for " << _id << "\n";
@@ -131,10 +136,21 @@ public:
       } else if (command == "data") {
 	send_reply ("354 Ok");
 	// fetch body
+#if 0
 	std::string body;
 	_b->get (body, "\r\n.\r\n");
-	// std::cerr << "got body on " << _id << ", " << body.size() << " bytes\n";
+	std::cerr << "got body on " << _id << ", " << body.size() << " bytes\n";
         std::cerr << ".";
+#else
+	// using the string_list accumulator...
+	string_list body_parts;
+	_b->get (body_parts, "\r\n.\r\n");
+	std::cerr << "body parts {\n";
+	for (std::string & part : body_parts) {
+	  std::cerr << "part (" << part << ")\n";
+	}
+	std::cerr << "}\n";
+#endif
 	_env_from = "";
 	_rcpts.clear();
 	send_reply ("250 Ok");
@@ -148,10 +164,6 @@ public:
     }
     //std::cerr << "leaving command loop... for " << _id << "\n";
   }
-
-  //~smtp_session() {
-  //    std::cerr << "smtp session " << _id << " destroyed\n";
-  //  }
 
 };
 
