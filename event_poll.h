@@ -58,19 +58,19 @@ class poll_poller : public poller {
       _poll_set[j].events |= POLLOUT;
     }
 
-    std::cerr << "poll(" << count << ")";
+    //std::cerr << "poll(" << count << ")";
 
-    std::cerr << "poll timeout=" << timeout_usec / 1000 << std::endl;
+    //std::cerr << "poll timeout=" << timeout_usec / 1000 << std::endl;
 
     int poll_result = ::poll (_poll_set, count, timeout_usec / 1000);
 
-    std::cerr << "=" << poll_result << "\n";
+    //std::cerr << "=" << poll_result << "\n";
 
     if (poll_result < 0) {
       std::cerr << "poll() failed: " << errno << "\n";
     } else {
       for (j = 0; ((j < count) && poll_result--); j++) {
-	std::cerr << _poll_set[j].fd << ":" << _poll_set[j].revents << std::endl;
+	//std::cerr << _poll_set[j].fd << ":" << _poll_set[j].revents << std::endl;
 	if (_poll_set[j].revents & POLLIN) {
 	  i = _read_set.find (_poll_set[j].fd);
 	  if (i != _read_set.end()) {
