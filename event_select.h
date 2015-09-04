@@ -40,7 +40,7 @@ class select_poller : public poller {
     FD_ZERO (&r);
     FD_ZERO (&w);
 
-    struct timeval tv = {timeout_usec / 1000000, timeout_usec % 1000000};
+    struct timeval tv = {(int)(timeout_usec / 1000000), (int)(timeout_usec % 1000000)};
 
     fd_map::iterator i;
     int max_fd = 0;
