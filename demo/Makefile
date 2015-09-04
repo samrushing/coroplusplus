@@ -1,7 +1,7 @@
 # -*- Mode: Makefile -*-
 
 CC = c++
-OPT = -O2 -g -Wall
+OPT = -O2 -g -Wall -std=c++11
 CFLAGS = $(OPT) -I..
 LIBS = -lstdc++ -lm
 
